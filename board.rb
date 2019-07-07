@@ -8,9 +8,9 @@ class Board
     @@board = Array.new(8) { Array.new(8) }
     initialize_pieces('black')
     initialize_pieces('white')
-    @@board[3..6].each_with_index do |r, row|
+    @@board.each_with_index do |r, row|
       r.each_with_index do |_c, col|
-        @@board[row + 2][col] = Cell.new(row + 2, col)
+        @@board[row ][col] = Cell.new(row, col) if @@board[row][col].nil?
       end
     end
     end
@@ -34,9 +34,9 @@ class Board
     @@board[piece_row][5] = Bishop.new(piece_row, 5, 'bishop', b, color)
     @@board[piece_row][3] = Queen.new(piece_row, 3, 'queen', q, color)
     @@board[piece_row][4] = King.new(piece_row, 4, 'king', ki, color)
-    @@board[pawn_row].each_with_index do |_pawn, index|
-      @@board[pawn_row][index] = Pawn.new(pawn_row, index, 'pawn', pi, color)
-    end
+    # @@board[pawn_row].each_with_index do |_pawn, index|
+    #   @@board[pawn_row][index] = Pawn.new(pawn_row, index, 'pawn', pi, color)
+    # end
   end
 
   def display
@@ -64,13 +64,21 @@ class Board
     false
   end
 
+  def is_valid?(x,y,player_color)
+    @@board[x][y].color == player_color ? true : false
+  end
+
   def ask_to_move(player_color)
     loop do
-      answer = gets.chomp
-      answer = answer.split(',')
-      answer = answer.collect(&:to_i)
-      if !is_ally?(answer[2], answer[3], player_color) && @@board[answer[0]][answer[1]].can_move?(answer[2], answer[3])
-        move_piece(answer[0], answer[1], answer[2], answer[3])
+      answer = ''
+      until answer.length == 4 do 
+        answer = gets.chomp
+        answer = answer.split(',')
+        answer = answer.collect(&:to_i)
+      end
+      x,y,wanted_x,wanted_y = answer
+      if is_valid?(x,y,player_color) && !is_ally?(wanted_x, wanted_y, player_color) && @@board[x][y].can_move?(wanted_x,wanted_y)
+        move_piece(x, y, wanted_x, wanted_y)
       else
         puts 'no'
       end
