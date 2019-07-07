@@ -5,6 +5,6 @@ board = Board.new
 
 board.display
 
-board.ask_to_move
+board.ask_to_move('white')
 
 board.display

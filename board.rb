@@ -59,12 +59,19 @@ class Board
     
   end
 
-  def ask_to_move
+  def is_ally?(wanted_x,wanted_y,player_color)
+    if @board[wanted_x][wanted_y].color == player_color
+      return true
+    end
+    false
+  end
+
+  def ask_to_move(player_color)
     loop do
       answer = gets.chomp
       answer = answer.split(',')
       answer = answer.collect{|i| i.to_i}
-      if @board[answer[0]][answer[1]].can_move?(answer[2],answer[3])
+      if !is_ally?(answer[2],answer[3],player_color) && @board[answer[0]][answer[1]].can_move?(answer[2],answer[3])
         move_piece(answer[0],answer[1],answer[2],answer[3])
       else
         puts 'no'

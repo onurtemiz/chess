@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 class Cell
-  attr_reader :icon
-  def initialize(x, y, type = nil, icon = ' ', player = nil)
+  attr_reader :icon,:x,:y, :color
+  def initialize(x, y, type = nil, icon = ' ', color = nil)
     @x = x
     @y = y
     @type = type
     @icon = icon
-    @player = player
+    @color = color
   end
 
   def to_s
@@ -16,34 +16,35 @@ class Cell
 end
 
 class Rook < Cell
-  def initialize(x, y, type, icon, player)
+  def initialize(x, y, type, icon, color)
     super
   end
 end
 
 class Bishop < Cell
-  def initialize(x, y, type, icon, player)
+  def initialize(x, y, type, icon, color)
     super
   end
 end
 
 class Queen < Cell
-  def initialize(x, y, type, icon, player)
+  def initialize(x, y, type, icon, color)
     super
   end
 end
 
 class King < Cell
-  def initialize(x, y, type, icon, player)
+  def initialize(x, y, type, icon, color)
     super
   end
 end
 
 class Knight < Cell
-  attr_reader :x,:y
-  def initialize(x, y, type, icon, player)
+  def initialize(x, y, type, icon, color)
     super
   end
+
+  
 
   def can_move?(wanted_x, wanted_y)
     possible_moves = [[2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]]
@@ -63,7 +64,7 @@ class Knight < Cell
 end
 
 class Pawn < Cell
-  def initialize(x, y, type, icon, player)
+  def initialize(x, y, type, icon, color)
     super
   end
 end
