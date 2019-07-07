@@ -48,10 +48,28 @@ class Board
     puts '┗━┻━┻━┻━┻━┻━┻━┻━┛'
   end
 
+  def move_piece(x,y,wanted_x,wanted_y)
+    
+    @board[x][y].move(wanted_x,wanted_y)
+    new_x = @board[x][y].x
+    new_y = @board[x][y].y
+    @board[new_x][new_y] = @board[x][y]
+    @board[x][y] = Cell.new(x,y)
+    display()
+    
+  end
 
+  def ask_to_move
+    loop do
+      answer = gets.chomp
+      answer = answer.split(',')
+      answer = answer.collect{|i| i.to_i}
+      if @board[answer[0]][answer[1]].can_move?(answer[2],answer[3])
+        move_piece(answer[0],answer[1],answer[2],answer[3])
+      else
+        puts 'no'
+      end
+    end
+  end
 
 end
-
-board = Board.new
-
-board.display

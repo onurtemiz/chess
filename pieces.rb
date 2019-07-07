@@ -40,6 +40,7 @@ class King < Cell
 end
 
 class Knight < Cell
+  attr_reader :x,:y
   def initialize(x, y, type, icon, player)
     super
   end
@@ -55,7 +56,7 @@ class Knight < Cell
   end
 
   def move(wanted_x, wanted_y)
-    new_pos = can_move?(wanted_x, wanted_y) if can_move?(wanted_x, wanted_y)
+      new_pos = can_move?(wanted_x, wanted_y) 
     @x = new_pos[0]
     @y = new_pos[1]
   end
