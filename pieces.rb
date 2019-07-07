@@ -13,6 +13,66 @@ class Cell
   def to_s
     @icon
   end
+
+  def possible_up_down
+    board = Board.class_variable_get(:@@board)
+    possible_moves = []
+    fake_x = 7
+    until fake_x.zero?
+      fake_x -= 1
+      possible_moves.push([fake_x, @y]) if fake_x != @x && board[fake_x][@y].color != @color
+    end
+    possible_moves
+  end
+
+  def possible_right_left
+    board = Board.class_variable_get(:@@board)
+    possible_moves = []
+    fake_y = 7
+    until fake_y.zero?
+      fake_y -= 1
+      possible_moves.push([@x, fake_y]) if fake_y != @y && board[@x][fake_y].color != @color
+    end
+    possible_moves
+  end
+
+  def move(wanted_x, wanted_y)
+    @x, @y = can_move?(wanted_x, wanted_y)
+  end
+
+  def possible_diag_left
+    board = Board.class_variable_get(:@@board)
+    possible_moves = []
+    fake_y = @y
+    fake_x = @x
+    until fake_x == -1 || fake_y == -1
+      fake_x -= 1
+      fake_y -= 1
+    end
+    until fake_x == 7 || fake_y == 7
+      fake_x += 1
+      fake_y += 1
+      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+    end
+    possible_moves
+  end
+
+  def possible_diag_right
+    board = Board.class_variable_get(:@@board)
+    possible_moves = []
+    fake_y = @y
+    fake_x = @x
+    until fake_x == -1 || fake_y == 8
+      fake_x -= 1
+      fake_y += 1
+    end
+    until fake_x == 7 || fake_y == 0
+      fake_x += 1
+      fake_y -= 1
+      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+    end
+    possible_moves
+  end
 end
 
 class Rook < Cell
@@ -20,50 +80,11 @@ class Rook < Cell
     super
   end
 
-  def possible_up_down(up_down)
-    board = Board.class_variable_get(:@@board)
-    possible_moves = []
-    fake_x = @x
-    limit = if up_down == -1
-              0
-            else
-              7
-            end
-    until fake_x == limit
-      fake_x += up_down
-      possible_moves.push([fake_x, @y]) if board[fake_x][@y].color != @color
-    end
-    possible_moves
-  end
-
-  def possible_right_left(right_left)
-    board = Board.class_variable_get(:@@board)
-    possible_moves = []
-    fake_y = @y
-    limit = if right_left == -1
-              0
-            else
-              7
-            end
-    until fake_y == limit
-      fake_y += right_left
-      possible_moves.push([@x, fake_y]) if board[@x][fake_y].color != @color
-    end
-    possible_moves
-  end
-
   def can_move?(wanted_x, wanted_y)
     possible_moves = []
-    possible_moves.push(*possible_up_down(-1))
-    possible_moves.push(*possible_up_down(1))
-    possible_moves.push(*possible_right_left(-1))
-    possible_moves.push(*possible_right_left(1))
-    return [wanted_x, wanted_y] if possible_moves.include?([wanted_x, wanted_y])
-    nil
-  end
-
-  def move(wanted_x, wanted_y)
-    @x,@y = can_move?(wanted_x,wanted_y)
+    possible_moves.push(*possible_up_down)
+    possible_moves.push(*possible_right_left)
+    possible_moves.include?([wanted_x, wanted_y]) ? [wanted_x, wanted_y] : nil
   end
 end
 
@@ -71,11 +92,28 @@ class Bishop < Cell
   def initialize(x, y, type, icon, color)
     super
   end
+
+  def can_move?(wanted_x, wanted_y)
+    possible_moves = []
+    possible_moves.push(*possible_diag_left)
+    possible_moves.push(*possible_diag_right)
+    possible_moves.include?([wanted_x, wanted_y]) ? [wanted_x, wanted_y] : nil
+  end
 end
 
 class Queen < Cell
   def initialize(x, y, type, icon, color)
     super
+  end
+
+  def can_move?(wanted_x,wanted_y)
+    possible_moves = []
+    possible_moves.push(*possible_diag_left)
+    possible_moves.push(*possible_diag_right)
+    possible_moves.push(*possible_right_left)
+    possible_moves.push(*possible_up_down)
+    p possible_moves
+    possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end
 
@@ -99,12 +137,6 @@ class Knight < Cell
     end
     nil
   end
-
-  def move(wanted_x, wanted_y)
-    new_pos = can_move?(wanted_x, wanted_y)
-    @x = new_pos[0]
-    @y = new_pos[1]
-  end
 end
 
 class Pawn < Cell
@@ -116,15 +148,11 @@ class Pawn < Cell
     board = Board.class_variable_get(:@@board)
     if board[wanted_x][wanted_y].type.nil?
       if @color == 'white'
-        return @x + 1
+        return [@x + 1, @y]
       else
-        return @x - 1
+        return [@x - 1, @y]
       end
     end
     nil
-  end
-
-  def move(wanted_x, wanted_y)
-    @x = can_move?(wanted_x, wanted_y)
   end
 end
