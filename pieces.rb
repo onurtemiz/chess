@@ -112,7 +112,6 @@ class Queen < Cell
     possible_moves.push(*possible_diag_right)
     possible_moves.push(*possible_right_left)
     possible_moves.push(*possible_up_down)
-    p possible_moves
     possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end
@@ -120,6 +119,16 @@ end
 class King < Cell
   def initialize(x, y, type, icon, color)
     super
+  end
+
+  def can_move?(wanted_x,wanted_y)
+    possible_moves = [[1,0],[1,-1],[1,1],[0,1],[0,-1],[-1,0],[-1,1],[-1,-1]]
+    possible_moves.each do |move|
+      if @x + move[0] == wanted_x && @y + move[1] == wanted_y
+        return [@x + move[0], @y + move[1]]
+      end
+    end
+    nil
   end
 end
 
