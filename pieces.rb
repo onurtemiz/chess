@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Cell
+
   attr_reader :icon, :x, :y, :color, :type
   def initialize(x, y, type = nil, icon = ' ', color = nil)
     @x = x
@@ -37,7 +38,7 @@ class Cell
   end
 
   def move(wanted_x, wanted_y)
-    @x, @y = can_move?(wanted_x, wanted_y)
+    @x, @y = wanted_x, wanted_y
   end
 
   def possible_diag_left
@@ -80,10 +81,15 @@ class Rook < Cell
     super
   end
 
-  def can_move?(wanted_x, wanted_y)
+  def pos_moves
     possible_moves = []
     possible_moves.push(*possible_up_down)
     possible_moves.push(*possible_right_left)
+    possible_moves
+  end
+
+  def can_move?(wanted_x, wanted_y)
+    possible_moves = pos_moves
     possible_moves.include?([wanted_x, wanted_y]) ? [wanted_x, wanted_y] : nil
   end
 end
@@ -93,10 +99,15 @@ class Bishop < Cell
     super
   end
 
-  def can_move?(wanted_x, wanted_y)
+  def pos_moves
     possible_moves = []
     possible_moves.push(*possible_diag_left)
     possible_moves.push(*possible_diag_right)
+    possible_moves
+  end
+  
+  def can_move?(wanted_x, wanted_y)
+    possible_moves = pos_moves
     possible_moves.include?([wanted_x, wanted_y]) ? [wanted_x, wanted_y] : nil
   end
 end
@@ -106,12 +117,18 @@ class Queen < Cell
     super
   end
 
-  def can_move?(wanted_x,wanted_y)
+  def pos_moves
     possible_moves = []
     possible_moves.push(*possible_diag_left)
     possible_moves.push(*possible_diag_right)
     possible_moves.push(*possible_right_left)
     possible_moves.push(*possible_up_down)
+    possible_moves
+  end
+
+
+  def can_move?(wanted_x,wanted_y)
+    possible_moves = pos_moves
     possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end
@@ -121,14 +138,21 @@ class King < Cell
     super
   end
 
-  def can_move?(wanted_x,wanted_y)
-    possible_moves = [[1,0],[1,-1],[1,1],[0,1],[0,-1],[-1,0],[-1,1],[-1,-1]]
-    possible_moves.each do |move|
-      if @x + move[0] == wanted_x && @y + move[1] == wanted_y
-        return [@x + move[0], @y + move[1]]
+  def pos_moves
+    numbers = (0..7).to_a
+    possible_moves = []
+    possible_x_y = [[1,0],[1,-1],[1,1],[0,1],[0,-1],[-1,0],[-1,1],[-1,-1]]
+    possible_x_y.each do |move|
+      if numbers.include?(@x + possible_x_y[0]) && numbers.include?(@y + possible_x_y[1])
+        possible_moves.push([@x+possible_x_y[0],@y+possible_x_y[1]])
       end
     end
-    nil
+    possible_moves
+  end
+
+  def can_move?(wanted_x,wanted_y)
+    possible_moves = pos_moves
+    possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end
 
@@ -137,14 +161,22 @@ class Knight < Cell
     super
   end
 
-  def can_move?(wanted_x, wanted_y)
-    possible_moves = [[2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]]
-    possible_moves.each do |move|
-      if @x + move[0] == wanted_x && @y + move[1] == wanted_y
-        return [@x + move[0], @y + move[1]]
+  def pos_moves
+    numbers = (0..7).to_a
+    possible_moves = []
+    possible_x_y = [[2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]]
+
+    possible_x_y.each do |move|
+      if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1])
+        possible_moves.push([@x+move[0],@y+move[1]])
       end
     end
-    nil
+    possible_moves
+  end
+
+  def can_move?(wanted_x, wanted_y)
+    possible_moves = pos_moves
+    possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end
 
@@ -153,15 +185,19 @@ class Pawn < Cell
     super
   end
 
-  def can_move?(wanted_x, wanted_y)
+  def pos_moves
     board = Board.class_variable_get(:@@board)
-    if board[wanted_x][wanted_y].type.nil?
-      if @color == 'white'
-        return [@x + 1, @y]
-      else
-        return [@x - 1, @y]
-      end
+    if @color == 'white' && board[@x+1][@y].type.nil?
+      return [[@x + 1, @y]] 
+    elsif board[@x-1][@y].type.nil?
+      return [[@x - 1, @y]]
     end
     nil
+  end
+
+  def can_move?(wanted_x,wanted_y)
+    possible_moves = pos_moves
+    p possible_moves
+    possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end

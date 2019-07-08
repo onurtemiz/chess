@@ -40,49 +40,16 @@ class Board
   end
 
   def display
-    puts '┏━┳━┳━┳━┳━┳━┳━┳━┓'
+    letters = ('a'..'h').to_a
+    puts ' ┏━┳━┳━┳━┳━┳━┳━┳━┓'
     @@board.each_with_index do |row, index|
-      puts '┃' + row.join('┃') + '┃'
-      puts '┣━╋━╋━╋━╋━╋━╋━╋━┫' if index != @@board.length - 1
+      puts "#{index+1}┃" + row.join('┃') + '┃'
+      puts " ┣━╋━╋━╋━╋━╋━╋━╋━┫" if index != @@board.length - 1
     end
-    puts '┗━┻━┻━┻━┻━┻━┻━┻━┛'
+    puts ' ┗━┻━┻━┻━┻━┻━┻━┻━┛'
+    puts '  A B C D E F G H'
   end
 
-  def move_piece(x, y, wanted_x, wanted_y)
-    @@board[x][y].move(wanted_x, wanted_y)
-    new_x = @@board[x][y].x
-    new_y = @@board[x][y].y
-    p [new_x,new_y]
-    @@board[new_x][new_y] = @@board[x][y]
-    @@board[x][y] = Cell.new(x, y)
-    display
-  end
-
-  def is_ally?(wanted_x, wanted_y, player_color)
-    return true if @@board[wanted_x][wanted_y].color == player_color
-
-    false
-  end
-
-  def is_valid?(x,y,player_color)
-    @@board[x][y].color == player_color ? true : false
-  end
-
-  def ask_to_move(player_color)
-    loop do
-      answer = ''
-      until answer.length == 4 do
-        answer = gets.chomp
-        answer = answer.split(',')
-        answer = answer.collect(&:to_i)
-      end
-      x,y,wanted_x,wanted_y = answer
-      if is_valid?(x,y,player_color) && !is_ally?(wanted_x, wanted_y, player_color) && @@board[x][y].can_move?(wanted_x,wanted_y)
-        move_piece(x, y, wanted_x, wanted_y)
-      else
-        puts 'no'
-      end
-    end
-  end
+  
 
 end
