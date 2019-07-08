@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Cell
-
-  attr_reader :icon, :x, :y, :color, :type
+  attr_accessor :icon
+  attr_reader :x, :y, :color, :type
   def initialize(x, y, type = nil, icon = ' ', color = nil)
     @x = x
     @y = y
