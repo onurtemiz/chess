@@ -42,6 +42,9 @@ class Game
   def play_piece(x, y, player_color)
     target = get_user_answer(player_color, 'play','Hareket Ettirmek İstediğiniz Yer İçin',[x,y])
     close_possible_moves(x, y)
+    if @board[x][y].type == 'pawn' && !(@board[x][y].first_move)
+      @board[x][y].first_move = true
+    end
     move_piece(x, y, target[0], target[1])
   end
 

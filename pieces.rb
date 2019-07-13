@@ -218,18 +218,27 @@ class Knight < Cell
 end
 
 class Pawn < Cell
+  attr_accessor :first_move
   def initialize(x, y, type, icon, color)
     super
+    @first_move = false
   end
 
   def pos_moves
     board = Board.class_variable_get(:@@board)
+    possible_moves = []
     if @color == 'white' && board[@x+1][@y].type.nil?
-      return [[@x + 1, @y]] 
+      possible_moves.push([@x + 1, @y])
+      if !@first_move
+        possible_moves.push([@x + 2, @y])
+      end
     elsif board[@x-1][@y].type.nil?
-      return [[@x - 1, @y]]
+      possible_moves.push([@x - 1, @y])
+      if !@first_move
+        possible_moves.push([@x - 2, @y])
+      end
     end
-    nil
+    possible_moves
   end
 
   def can_move?(wanted_x,wanted_y)
