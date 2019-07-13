@@ -39,13 +39,29 @@ class Game
     @board[x.to_i][y.to_i].color == player_color
   end
 
+  def play_pawn(x,y,target)
+    if !@board[x][y].first_move
+      @board[x][y].first_move = true
+    end
+    if target[0] == 7 || target[0].zero?
+      if @board[x][y].color == 'white'
+        @board[target[0]][target[1]] = Queen.new(target[0], target[1], 'queen', '♛', @board[x][y].color)
+      else
+        @board[target[0]][target[1]] = Queen.new(target[0], target[1], 'queen', '♕', @board[x][y].color)
+      end
+      @board[x][y] = Cell.new(x, y)
+    end
+  end
+
   def play_piece(x, y, player_color)
     target = get_user_answer(player_color, 'play', 'Hareket Ettirmek İstediğiniz Yer İçin', [x, y])
     close_possible_moves(x, y)
-    if @board[x][y].type == 'pawn' && !@board[x][y].first_move
-      @board[x][y].first_move = true
+    if @board[x][y].type == 'pawn'
+      play_pawn(x,y,target)
+    else
+      move_piece(x, y, target[0], target[1])
     end
-    move_piece(x, y, target[0], target[1])
+    
   end
 
   def get_converted_answer(answer)
