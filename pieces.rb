@@ -230,13 +230,13 @@ class Pawn < Cell
     if @color == 'white'
       possible_moves.push([@x + 1, @y]) if board[@x+1][@y].type.nil?
       possible_moves.push([@x + 2, @y]) if !@first_move && board[@x+2][@y].type.nil?
-      possible_moves.push([@x+1,@y-1]) if !(board[@x+1][@y-1].type.nil?) && @y != 0
-      possible_moves.push([@x+1,@y+1]) if !(board[@x+1][@y+1].type.nil?) && @y != 7
+      possible_moves.push([@x + 1,@y - 1]) if @y != 0 && !(board[@x+1][@y-1].type.nil?) 
+      possible_moves.push([@x + 1,@y + 1]) if @y != 7 && !(board[@x+1][@y+1].type.nil?)
     else
       possible_moves.push([@x - 1, @y]) if board[@x-1][@y].type.nil?
       possible_moves.push([@x - 2, @y]) if !@first_move && board[x-2][@y].type.nil?
-      possible_moves.push([@x-1,@y-1]) if !(board[@x-1][@y-1].type.nil?) && @y != 0
-      possible_moves.push([@x-1,@y+1]) if !(board[@x-1][@y+1].type.nil?) && @y != 7
+      possible_moves.push([@x - 1,@y - 1]) if @y != 0 && !(board[@x-1][@y-1].type.nil?)
+      possible_moves.push([@x - 1,@y + 1]) if @y != 7 && !(board[@x-1][@y+1].type.nil?)
     end
     possible_moves
   end
