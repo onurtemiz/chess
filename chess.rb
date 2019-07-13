@@ -40,7 +40,7 @@ class Game
   end
 
   def play_piece(x, y, player_color)
-    target = get_user_answer(player_color, 'Hareket Ettirmek İstediğiniz Yer İçin')
+    target = get_user_answer(player_color, 'play','Hareket Ettirmek İstediğiniz Yer İçin',[x,y])
     close_possible_moves(x, y)
     move_piece(x, y, target[0], target[1])
   end
@@ -60,18 +60,20 @@ class Game
 
   def show_possible_moves(x, y)
     @board[x][y].pos_moves.each do |pos_xy|
+      if @board[pos_xy[0]][pos_xy[1]].color != @board[x][y].color
       @board[pos_xy[0]][pos_xy[1]].icon = @board[pos_xy[0]][pos_xy[1]].icon.bg_red
+      end
     end
     @board_class.display
   end
 
   def play_a_piece(player_color)
-    answer = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin')
+    answer = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin',)
     show_possible_moves(answer[0], answer[1])
     play_piece(answer[0], answer[1], player_color)
   end
 
-  def get_user_answer(player_color, option = 'play', for_what)
+  def get_user_answer(player_color, option, for_what,coordinats = nil)
     numbers = (0..7).to_a
     loop do
       location = ''
@@ -85,8 +87,12 @@ class Game
           else
             next
           end
-        else
-          return location
+        elsif option == 'play'
+          if @board[coordinats[0]][coordinats[1]].pos_moves.include?([location[0],location[1]])
+            return location
+          else
+            next
+          end
         end
       end
     end

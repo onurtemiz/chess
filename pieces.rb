@@ -18,10 +18,21 @@ class Cell
   def possible_up_down
     board = Board.class_variable_get(:@@board)
     possible_moves = []
-    fake_x = 7
+    fake_x = @x
     until fake_x.zero?
       fake_x -= 1
       possible_moves.push([fake_x, @y]) if fake_x != @x && board[fake_x][@y].color != @color
+      if !(board[fake_x][@y].type.nil?)
+        break
+      end
+    end
+    fake_x = @x
+    until fake_x == 7
+      fake_x += 1
+      possible_moves.push([fake_x, @y]) if fake_x != @x && board[fake_x][@y].color != @color
+      if !(board[fake_x][@y].type.nil?)
+        break
+      end
     end
     possible_moves
   end
@@ -29,10 +40,21 @@ class Cell
   def possible_right_left
     board = Board.class_variable_get(:@@board)
     possible_moves = []
-    fake_y = 7
+    fake_y = @y
     until fake_y.zero?
       fake_y -= 1
       possible_moves.push([@x, fake_y]) if fake_y != @y && board[@x][fake_y].color != @color
+      if !(board[@x][fake_y].type.nil?)
+        break
+      end
+    end
+    fake_y = @y
+    until fake_y == 7
+      fake_y += 1
+      possible_moves.push([@x, fake_y]) if fake_y != @y && board[@x][fake_y].color != @color
+      if !(board[@x][fake_y].type.nil?)
+        break
+      end
     end
     possible_moves
   end
@@ -46,14 +68,21 @@ class Cell
     possible_moves = []
     fake_y = @y
     fake_x = @x
-    until fake_x == -1 || fake_y == -1
-      fake_x -= 1
-      fake_y -= 1
-    end
     until fake_x == 7 || fake_y == 7
-      fake_x += 1
       fake_y += 1
+      fake_x += 1
       possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      if !(board[fake_x][fake_y].type.nil?)
+        break
+      end
+    end
+    until fake_x.zero? || fake_y.zero?
+      fake_y -= 1
+      fake_x -= 1
+      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      if !(board[fake_x][fake_y].type.nil?)
+        break
+      end
     end
     possible_moves
   end
@@ -63,15 +92,23 @@ class Cell
     possible_moves = []
     fake_y = @y
     fake_x = @x
-    until fake_x == -1 || fake_y == 8
+    until fake_x.zero? || fake_y == 7
       fake_x -= 1
       fake_y += 1
+      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      if !(board[fake_x][fake_y].type.nil?)
+        break
+      end
     end
-    until fake_x == 7 || fake_y == 0
+    until fake_x == 7 || fake_y.zero?
       fake_x += 1
       fake_y -= 1
       possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      if !(board[fake_x][fake_y].type.nil?)
+        break
+      end
     end
+
     possible_moves
   end
 end
@@ -143,8 +180,8 @@ class King < Cell
     possible_moves = []
     possible_x_y = [[1,0],[1,-1],[1,1],[0,1],[0,-1],[-1,0],[-1,1],[-1,-1]]
     possible_x_y.each do |move|
-      if numbers.include?(@x + possible_x_y[0]) && numbers.include?(@y + possible_x_y[1])
-        possible_moves.push([@x+possible_x_y[0],@y+possible_x_y[1]])
+      if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1])
+        possible_moves.push([@x+move[0],@y+move[1]])
       end
     end
     possible_moves
