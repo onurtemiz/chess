@@ -36,7 +36,7 @@ class Game
   end
 
   def is_valid?(x, y, player_color)
-    @board[x.to_i][y.to_i].color == player_color
+    @board[x][y].color == player_color && @board[x][y].pos_moves.length.positive? ? true : false
   end
 
   def play_pawn(x,y,target)
@@ -98,7 +98,6 @@ class Game
       location = ''
       puts "#{player_color.capitalize} Lütfen #{for_what} Koordinat Girin. Örnek: a8"
       location = get_converted_answer(gets.chomp.downcase)
-      p location
       if location.length == 2 && numbers.include?(location[0].to_i) && numbers.include?(location[1].to_i)
         if option == 'pick'
           if is_valid?(location[0], location[1], player_color)
