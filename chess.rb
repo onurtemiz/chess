@@ -25,10 +25,8 @@ class Game
     @board[x][y].move(wanted_x, wanted_y)
     new_x = @board[x][y].x
     new_y = @board[x][y].y
-    p [new_x, new_y]
     @board[new_x][new_y] = @board[x][y]
     @board[x][y] = Cell.new(x, y)
-    display
   end
 
   def is_ally?(wanted_x, wanted_y, player_color)
@@ -50,6 +48,8 @@ class Game
         @board[target[0]][target[1]] = Queen.new(target[0], target[1], 'queen', '♕', @board[x][y].color)
       end
       @board[x][y] = Cell.new(x, y)
+    else
+      move_piece(x, y, target[0], target[1])
     end
   end
 
