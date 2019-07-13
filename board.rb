@@ -10,7 +10,7 @@ class Board
     initialize_pieces('white')
     @@board.each_with_index do |r, row|
       r.each_with_index do |_c, col|
-        @@board[row ][col] = Cell.new(row, col) if @@board[row][col].nil?
+        @@board[row][col] = Cell.new(row, col) if @@board[row][col].nil?
       end
     end
     end
@@ -43,13 +43,10 @@ class Board
     letters = ('a'..'h').to_a
     puts ' ┏━┳━┳━┳━┳━┳━┳━┳━┓'
     @@board.each_with_index do |row, index|
-      puts "#{index+1}┃" + row.join('┃') + '┃'
-      puts " ┣━╋━╋━╋━╋━╋━╋━╋━┫" if index != @@board.length - 1
+      puts "#{index + 1}┃" + row.join('┃') + '┃'
+      puts ' ┣━╋━╋━╋━╋━╋━╋━╋━┫' if index != @@board.length - 1
     end
     puts ' ┗━┻━┻━┻━┻━┻━┻━┻━┛'
     puts '  A B C D E F G H'
   end
-
-  
-
 end
