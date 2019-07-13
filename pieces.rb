@@ -227,15 +227,32 @@ class Pawn < Cell
   def pos_moves
     board = Board.class_variable_get(:@@board)
     possible_moves = []
-    if @color == 'white' && board[@x+1][@y].type.nil?
-      possible_moves.push([@x + 1, @y])
-      if !@first_move
+     
+    if @color == 'white' 
+      if board[@x+1][@y].type.nil?
+        possible_moves.push([@x + 1, @y])
+      end
+      if !@first_move && board[@x+2][@y].type.nil?
         possible_moves.push([@x + 2, @y])
       end
-    elsif board[@x-1][@y].type.nil?
-      possible_moves.push([@x - 1, @y])
-      if !@first_move
+      if !(board[@x+1][@y-1].type.nil?) && @y != 0
+        possible_moves.push([@x+1,@y-1])
+      end
+      if !(board[@x+1][@y+1].type.nil?) && @y != 7
+        possible_moves.push([@x+1,@y+1])
+      end
+    else
+      if board[@x-1][@y].type.nil?
+        possible_moves.push([@x - 1, @y])
+      end
+      if !@first_move && board[x-2][@y].type.nil?
         possible_moves.push([@x - 2, @y])
+      end
+      if !(board[@x-1][@y-1].type.nil?) && @y != 0
+        possible_moves.push([@x-1,@y-1])
+      end
+      if !(board[@x-1][@y+1].type.nil?) && @y != 7
+        possible_moves.push([@x-1,@y+1])
       end
     end
     possible_moves
