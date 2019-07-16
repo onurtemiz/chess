@@ -97,22 +97,21 @@ class Game
     player_pieces
   end
 
-  def get_king_location(player_color)
+  def get_king(player_color)
     player_pieces = get_player_pieces(player_color)
     player_pieces.each do |piece|
       if piece.type == 'king'
-        return [piece.x,piece.y]
+        return piece
       end
     end
   end
 
-  def is_check?(player_color)
+  def is_check?(player_color,king_location)
     player_color == 'white' ? enemy_color = 'black' : enemy_color = 'white'
     enemy_pieces = get_player_pieces(enemy_color)
-    player_king = get_king_location(player_color)
     enemy_pieces.each do |piece|
       piece.pos_moves.each do |pos_xy|
-        if [pos_xy[0],pos_xy[1]] == player_king
+        if pos_xy == king_location
           return true
         end
       end
@@ -120,8 +119,33 @@ class Game
     false
   end
 
+  def is_checkmate?(player_color)
+    player_king = get_king(player_color)
+    if is_check?(player_color,[player_king.x,player_king.y])
+      player_king.pos_moves.each do |pos_xy|
+        temp_piece = @board[pos_xy[0]][pos_xy[1]]
+        temp_king = player_king
+        @board[pos_xy[0]][pos_xy[1]] = player_king
+        @board[player_king.x][player_king.y] = Cell.new(player_king.x,player_king.y)
+        puts "#{pos_xy} Icin"
+        if !is_check?(player_color,[pos_xy[0],pos_xy[1]])
+          p false
+          @board[pos_xy[0]][pos_xy[1]] = temp_piece
+          @board[temp_king.x][temp_king.y] = temp_king
+          return false
+        end
+        @board[pos_xy[0]][pos_xy[1]] = temp_piece
+        @board[temp_king.x][temp_king.y] = temp_king
+        p true
+      end
+      return true
+    end
+    false
+  end
+
+
   def play_a_piece(player_color)
-    if is_check?(player_color)
+    if is_checkmate?(player_color)
       puts 'Check!'
     end
     answer = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin')

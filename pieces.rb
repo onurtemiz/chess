@@ -66,12 +66,13 @@ end
 class King < Cell
 
   def pos_moves
+    board = Board.class_variable_get(:@@board)
     numbers = (0..7).to_a
     possible_moves = []
     possible_x_y = [[1,0],[1,-1],[1,1],[0,1],[0,-1],[-1,0],[-1,1],[-1,-1]]
     possible_x_y.each do |move|
       if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1])
-        possible_moves.push([@x+move[0],@y+move[1]])
+        possible_moves.push([@x+move[0],@y+move[1]]) if board[@x+move[0]][@y+move[1]].color != @color && !(board[@x+move[0]][@y+move[1]].type == 'king')
       end
     end
     possible_moves
@@ -81,12 +82,13 @@ end
 class Knight < Cell
 
   def pos_moves
+    board = Board.class_variable_get(:@@board)
     numbers = (0..7).to_a
     possible_moves = []
     possible_x_y = [[2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]]
     possible_x_y.each do |move|
-      if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1])
-        possible_moves.push([@x+move[0],@y+move[1]])
+      if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1]) && !(board[@x+move[0]][@y+move[1]].type == 'king')
+        possible_moves.push([@x+move[0],@y+move[1]]) 
       end
     end
     possible_moves
@@ -104,15 +106,15 @@ class Pawn < Cell
     board = Board.class_variable_get(:@@board)
     possible_moves = []
     if @color == 'white'
-      possible_moves.push([@x + 1, @y]) if board[@x+1][@y].type.nil?
-      possible_moves.push([@x + 2, @y]) if !@first_move && board[@x+2][@y].type.nil?
-      possible_moves.push([@x + 1,@y - 1]) if @y != 0 && !(board[@x+1][@y-1].type.nil?) 
-      possible_moves.push([@x + 1,@y + 1]) if @y != 7 && !(board[@x+1][@y+1].type.nil?)
+      possible_moves.push([@x + 1, @y]) if board[@x+1][@y].type.nil? && !(board[@x+1][@y].type == 'king')
+      possible_moves.push([@x + 2, @y]) if !@first_move && board[@x+2][@y].type.nil? && !(board[@x+2][@y].type == 'king')
+      possible_moves.push([@x + 1,@y - 1]) if @y != 0 && !(board[@x+1][@y-1].type.nil?) && !(board[@x+1][@y-1].type == 'king')
+      possible_moves.push([@x + 1,@y + 1]) if @y != 7 && !(board[@x+1][@y+1].type.nil?) && !(board[@x+1][@y+1].type == 'king')
     else
-      possible_moves.push([@x - 1, @y]) if board[@x-1][@y].type.nil?
-      possible_moves.push([@x - 2, @y]) if !@first_move && board[x-2][@y].type.nil?
-      possible_moves.push([@x - 1,@y - 1]) if @y != 0 && !(board[@x-1][@y-1].type.nil?)
-      possible_moves.push([@x - 1,@y + 1]) if @y != 7 && !(board[@x-1][@y+1].type.nil?)
+      possible_moves.push([@x - 1, @y]) if board[@x-1][@y].type.nil? && !(board[@x-1][@y].type == 'king')
+      possible_moves.push([@x - 2, @y]) if !@first_move && board[x-2][@y].type.nil? && !(board[@x-2][@y].type == 'king')
+      possible_moves.push([@x - 1,@y - 1]) if @y != 0 && !(board[@x-1][@y-1].type.nil?) && !(board[@x-1][@y-1].type == 'king')
+      possible_moves.push([@x - 1,@y + 1]) if @y != 7 && !(board[@x-1][@y+1].type.nil?) && !(board[@x-1][@y+1].type == 'king')
     end
     possible_moves
   end
