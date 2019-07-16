@@ -7,15 +7,17 @@ module DiagonalMove
     until fake_x == 7 || fake_y == 7
       fake_y += 1
       fake_x += 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end
     end
+    fake_y = @y
+    fake_x = @x
     until fake_x.zero? || fake_y.zero?
       fake_y -= 1
       fake_x -= 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end
@@ -31,15 +33,17 @@ module DiagonalMove
     until fake_x.zero? || fake_y == 7
       fake_x -= 1
       fake_y += 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end
     end
+    fake_y = @y
+    fake_x = @x
     until fake_x == 7 || fake_y.zero?
       fake_x += 1
       fake_y -= 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end

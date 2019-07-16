@@ -29,31 +29,30 @@ end
 
 class Rook < Cell
   include VerHorMove
+
   def pos_moves
     possible_moves = []
     possible_moves.push(*possible_up_down)
     possible_moves.push(*possible_right_left)
     possible_moves
   end
-
-
 end
 
 class Bishop < Cell
   include DiagonalMove
+
   def pos_moves
     possible_moves = []
     possible_moves.push(*possible_diag_left)
     possible_moves.push(*possible_diag_right)
     possible_moves
   end
-  
-
 end
 
 class Queen < Cell
   include VerHorMove
   include DiagonalMove
+
   def pos_moves
     possible_moves = []
     possible_moves.push(*possible_diag_left)
@@ -62,8 +61,6 @@ class Queen < Cell
     possible_moves.push(*possible_up_down)
     possible_moves
   end
-
-
 end
 
 class King < Cell
