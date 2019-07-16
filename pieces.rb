@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require './move_modules'
+
 class Cell
   attr_accessor :icon
   attr_reader :x, :y, :color, :type
@@ -15,154 +17,9 @@ class Cell
     @icon
   end
 
-  def possible_up_down
-    board = Board.class_variable_get(:@@board)
-    possible_moves = []
-    fake_x = @x
-    until fake_x.zero?
-      fake_x -= 1
-      possible_moves.push([fake_x, @y]) if fake_x != @x && board[fake_x][@y].color != @color
-      if !(board[fake_x][@y].type.nil?)
-        break
-      end
-    end
-    fake_x = @x
-    until fake_x == 7
-      fake_x += 1
-      possible_moves.push([fake_x, @y]) if fake_x != @x && board[fake_x][@y].color != @color
-      if !(board[fake_x][@y].type.nil?)
-        break
-      end
-    end
-    possible_moves
-  end
-
-  def possible_right_left
-    board = Board.class_variable_get(:@@board)
-    possible_moves = []
-    fake_y = @y
-    until fake_y.zero?
-      fake_y -= 1
-      possible_moves.push([@x, fake_y]) if fake_y != @y && board[@x][fake_y].color != @color
-      if !(board[@x][fake_y].type.nil?)
-        break
-      end
-    end
-    fake_y = @y
-    until fake_y == 7
-      fake_y += 1
-      possible_moves.push([@x, fake_y]) if fake_y != @y && board[@x][fake_y].color != @color
-      if !(board[@x][fake_y].type.nil?)
-        break
-      end
-    end
-    possible_moves
-  end
-
   def move(wanted_x, wanted_y)
     @x, @y = wanted_x, wanted_y
   end
-
-  def possible_diag_left
-    board = Board.class_variable_get(:@@board)
-    possible_moves = []
-    fake_y = @y
-    fake_x = @x
-    until fake_x == 7 || fake_y == 7
-      fake_y += 1
-      fake_x += 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
-      if !(board[fake_x][fake_y].type.nil?)
-        break
-      end
-    end
-    until fake_x.zero? || fake_y.zero?
-      fake_y -= 1
-      fake_x -= 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
-      if !(board[fake_x][fake_y].type.nil?)
-        break
-      end
-    end
-    possible_moves
-  end
-
-  def possible_diag_right
-    board = Board.class_variable_get(:@@board)
-    possible_moves = []
-    fake_y = @y
-    fake_x = @x
-    until fake_x.zero? || fake_y == 7
-      fake_x -= 1
-      fake_y += 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
-      if !(board[fake_x][fake_y].type.nil?)
-        break
-      end
-    end
-    until fake_x == 7 || fake_y.zero?
-      fake_x += 1
-      fake_y -= 1
-      possible_moves.push([fake_x, fake_y]) if (fake_x != @x && fake_y != @y) && board[fake_x][fake_y].color != @color
-      if !(board[fake_x][fake_y].type.nil?)
-        break
-      end
-    end
-
-    possible_moves
-  end
-end
-
-class Rook < Cell
-  def initialize(x, y, type, icon, color)
-    super
-  end
-
-  def pos_moves
-    possible_moves = []
-    possible_moves.push(*possible_up_down)
-    possible_moves.push(*possible_right_left)
-    possible_moves
-  end
-
-  def can_move?(wanted_x, wanted_y)
-    possible_moves = pos_moves
-    possible_moves.include?([wanted_x, wanted_y]) ? [wanted_x, wanted_y] : nil
-  end
-end
-
-class Bishop < Cell
-  def initialize(x, y, type, icon, color)
-    super
-  end
-
-  def pos_moves
-    possible_moves = []
-    possible_moves.push(*possible_diag_left)
-    possible_moves.push(*possible_diag_right)
-    possible_moves
-  end
-  
-  def can_move?(wanted_x, wanted_y)
-    possible_moves = pos_moves
-    possible_moves.include?([wanted_x, wanted_y]) ? [wanted_x, wanted_y] : nil
-  end
-end
-
-class Queen < Cell
-  def initialize(x, y, type, icon, color)
-    super
-  end
-
-  def pos_moves
-    possible_moves = []
-    possible_moves.push(*possible_diag_left)
-    possible_moves.push(*possible_diag_right)
-    possible_moves.push(*possible_right_left)
-    possible_moves.push(*possible_up_down)
-    possible_moves
-  end
-
 
   def can_move?(wanted_x,wanted_y)
     possible_moves = pos_moves
@@ -170,10 +27,46 @@ class Queen < Cell
   end
 end
 
-class King < Cell
-  def initialize(x, y, type, icon, color)
-    super
+class Rook < Cell
+  include VerHorMove
+  def pos_moves
+    possible_moves = []
+    possible_moves.push(*possible_up_down)
+    possible_moves.push(*possible_right_left)
+    possible_moves
   end
+
+
+end
+
+class Bishop < Cell
+  include DiagonalMove
+  def pos_moves
+    possible_moves = []
+    possible_moves.push(*possible_diag_left)
+    possible_moves.push(*possible_diag_right)
+    possible_moves
+  end
+  
+
+end
+
+class Queen < Cell
+  include VerHorMove
+  include DiagonalMove
+  def pos_moves
+    possible_moves = []
+    possible_moves.push(*possible_diag_left)
+    possible_moves.push(*possible_diag_right)
+    possible_moves.push(*possible_right_left)
+    possible_moves.push(*possible_up_down)
+    possible_moves
+  end
+
+
+end
+
+class King < Cell
 
   def pos_moves
     numbers = (0..7).to_a
@@ -186,34 +79,20 @@ class King < Cell
     end
     possible_moves
   end
-
-  def can_move?(wanted_x,wanted_y)
-    possible_moves = pos_moves
-    possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
-  end
 end
 
 class Knight < Cell
-  def initialize(x, y, type, icon, color)
-    super
-  end
 
   def pos_moves
     numbers = (0..7).to_a
     possible_moves = []
     possible_x_y = [[2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]]
-
     possible_x_y.each do |move|
       if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1])
         possible_moves.push([@x+move[0],@y+move[1]])
       end
     end
     possible_moves
-  end
-
-  def can_move?(wanted_x, wanted_y)
-    possible_moves = pos_moves
-    possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end
 
@@ -239,11 +118,5 @@ class Pawn < Cell
       possible_moves.push([@x - 1,@y + 1]) if @y != 7 && !(board[@x-1][@y+1].type.nil?)
     end
     possible_moves
-  end
-
-  def can_move?(wanted_x,wanted_y)
-    possible_moves = pos_moves
-    p possible_moves
-    possible_moves.include?([wanted_x,wanted_y]) ? [wanted_x,wanted_y] : nil
   end
 end
