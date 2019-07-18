@@ -212,8 +212,21 @@ class Game
   end
 end
 
+def play_again?
+  until answer == 'y' || answer == 'n'
+    answer = gets.chomp.downcase
+  end
+  if answer == 'y'
+    game = Game.new
+    play_game(game)
+  else
+    puts 'Okay.'
+  end
+end
+
 game = Game.new
 
+def play_game(game)
 loop do
   game.play_a_piece('white')
   game.board_class.display
@@ -226,3 +239,8 @@ loop do
     break
   end
 end
+puts 'Game Over!'
+puts 'Want to play again? (y/n)'
+play_again?
+end
+ 
