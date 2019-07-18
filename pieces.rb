@@ -104,7 +104,7 @@ class Pawn < Cell
   def pos_moves
     board = Board.class_variable_get(:@@board)
     possible_moves = []
-    if @color == 'white'
+    if @color == 'black'
       possible_moves.push([@x + 1, @y]) if board[@x+1][@y].type.nil?
       possible_moves.push([@x + 2, @y]) if !@first_move && board[@x+2][@y].type.nil? 
       possible_moves.push([@x + 1,@y - 1]) if @y != 0 && !(board[@x+1][@y-1].type.nil?)
