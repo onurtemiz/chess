@@ -7,7 +7,7 @@ module DiagonalMove
     until fake_x == 7 || fake_y == 7
       fake_y += 1
       fake_x += 1
-      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color && !(board[fake_x][fake_y].type == 'king')
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end
@@ -17,7 +17,7 @@ module DiagonalMove
     until fake_x.zero? || fake_y.zero?
       fake_y -= 1
       fake_x -= 1
-      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color && !(board[fake_x][fake_y].type == 'king')
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end
@@ -33,7 +33,7 @@ module DiagonalMove
     until fake_x.zero? || fake_y == 7
       fake_x -= 1
       fake_y += 1
-      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color && !(board[fake_x][fake_y].type == 'king')
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end
@@ -43,7 +43,7 @@ module DiagonalMove
     until fake_x == 7 || fake_y.zero?
       fake_x += 1
       fake_y -= 1
-      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color && !(board[fake_x][fake_y].type == 'king')
+      possible_moves.push([fake_x, fake_y]) if board[fake_x][fake_y].color != @color
       if !(board[fake_x][fake_y].type.nil?)
         break
       end
@@ -59,7 +59,7 @@ module VerHorMove
     fake_x = @x
     until fake_x.zero?
       fake_x -= 1
-      possible_moves.push([fake_x, @y]) if board[fake_x][@y].color != @color && !(board[fake_x][@y].type == 'king')
+      possible_moves.push([fake_x, @y]) if board[fake_x][@y].color != @color
       if !(board[fake_x][@y].type.nil?)
         break
       end
@@ -67,7 +67,7 @@ module VerHorMove
     fake_x = @x
     until fake_x == 7
       fake_x += 1
-      possible_moves.push([fake_x, @y]) if board[fake_x][@y].color != @color && !(board[fake_x][@y].type == 'king')
+      possible_moves.push([fake_x, @y]) if board[fake_x][@y].color != @color 
       if !(board[fake_x][@y].type.nil?)
         break
       end
@@ -81,7 +81,7 @@ module VerHorMove
     fake_y = @y
     until fake_y.zero?
       fake_y -= 1
-      possible_moves.push([@x, fake_y]) if board[@x][fake_y].color != @color && !(board[@x][fake_y].type == 'king')
+      possible_moves.push([@x, fake_y]) if board[@x][fake_y].color != @color 
       if !(board[@x][fake_y].type.nil?)
         break
       end
@@ -89,7 +89,7 @@ module VerHorMove
     fake_y = @y
     until fake_y == 7
       fake_y += 1
-      possible_moves.push([@x, fake_y]) if board[@x][fake_y].color != @color && !(board[@x][fake_y].type == 'king')
+      possible_moves.push([@x, fake_y]) if board[@x][fake_y].color != @color
       if !(board[@x][fake_y].type.nil?)
         break
       end

@@ -37,10 +37,8 @@ class Game
     @board[x][y].color == player_color && @board[x][y].pos_moves.length.positive? ? true : false
   end
 
-  def play_pawn(x,y,target)
-    if !@board[x][y].first_move
-      @board[x][y].first_move = true
-    end
+  def play_pawn(x, y, target)
+    @board[x][y].first_move = true unless @board[x][y].first_move
     if target[0] == 7 || target[0].zero?
       if @board[x][y].color == 'white'
         @board[target[0]][target[1]] = Queen.new(target[0], target[1], 'queen', '♛', @board[x][y].color)
@@ -67,13 +65,11 @@ class Game
     @board_class.display
   end
 
-
-
   def play_piece(x, y, player_color)
     target = get_user_answer(player_color, 'play', 'Hareket Ettirmek İstediğiniz Yer İçin', [x, y])
     close_possible_moves(x, y)
     if @board[x][y].type == 'pawn'
-      play_pawn(x,y,target)
+      play_pawn(x, y, target)
     else
       move_piece(x, y, target[0], target[1])
     end
@@ -87,11 +83,9 @@ class Game
 
   def get_player_pieces(player_color)
     player_pieces = []
-    @board.each_with_index do |row,x|
-      row.each_with_index do |col,y|
-        if @board[x][y].color == player_color
-          player_pieces.push(@board[x][y])
-        end
+    @board.each_with_index do |row, x|
+      row.each_with_index do |_col, y|
+        player_pieces.push(@board[x][y]) if @board[x][y].color == player_color
       end
     end
     player_pieces
@@ -100,54 +94,78 @@ class Game
   def get_king(player_color)
     player_pieces = get_player_pieces(player_color)
     player_pieces.each do |piece|
-      if piece.type == 'king'
-        return piece
-      end
+      return piece if piece.type == 'king'
     end
   end
 
-  def is_check?(player_color,king_location)
-    player_color == 'white' ? enemy_color = 'black' : enemy_color = 'white'
+  def is_check?(player_color, king_location)
+    enemy_color = player_color == 'white' ? 'black' : 'white'
     enemy_pieces = get_player_pieces(enemy_color)
     enemy_pieces.each do |piece|
       piece.pos_moves.each do |pos_xy|
-        if pos_xy == king_location
-          return true
-        end
+        return true if pos_xy == king_location
       end
     end
     false
+  end
+
+  def can_king_move?(player_color)
+    player_king = get_king(player_color)
+    player_king.pos_moves.each do |pos_xy|
+      temp_piece = @board[pos_xy[0]][pos_xy[1]]
+      temp_king = player_king
+      @board[pos_xy[0]][pos_xy[1]] = player_king
+      @board[temp_king.x][temp_king.y] = Cell.new(temp_king.x, temp_king.y)
+      unless is_check?(player_color, pos_xy)
+        @board[pos_xy[0]][pos_xy[1]] = temp_piece
+        @board[temp_king.x][temp_king.y] = temp_king
+        return true
+      end
+      @board[pos_xy[0]][pos_xy[1]] = temp_piece
+      @board[temp_king.x][temp_king.y] = temp_king
+    end
+    false
+  end
+
+  def can_kill_piece?(player_color)
+    enemy_color = player_color == 'white' ? 'black' : 'white'
+    enemy_pieces = get_player_pieces(enemy_color)
+    player_pieces = get_player_pieces(player_color)
+    player_king = get_king(player_color)
+    target_pieces = []
+    enemy_pieces.each do |piece|
+      next if piece.type == 'king'
+      piece.pos_moves.each do |pos_xy|
+        target_pieces.push(piece) if pos_xy == [player_king.x,player_king.y]
+      end
+    end
+    player_pieces.each do |piece|
+      piece.pos_moves.each do |pos_xy|
+        target_pieces.each do |target_piece|
+          if pos_xy == [target_piece.x,target_piece.y]
+            target_pieces.delete(target_piece)
+            break
+          end
+        end
+      end
+    end
+    target_pieces.length.zero? ? true : false
   end
 
   def is_checkmate?(player_color)
-    player_king = get_king(player_color)
-    if is_check?(player_color,[player_king.x,player_king.y])
-      player_king.pos_moves.each do |pos_xy|
-        temp_piece = @board[pos_xy[0]][pos_xy[1]]
-        temp_king = player_king
-        @board[pos_xy[0]][pos_xy[1]] = player_king
-        @board[player_king.x][player_king.y] = Cell.new(player_king.x,player_king.y)
-        puts "#{pos_xy} Icin"
-        if !is_check?(player_color,[pos_xy[0],pos_xy[1]])
-          p false
-          @board[pos_xy[0]][pos_xy[1]] = temp_piece
-          @board[temp_king.x][temp_king.y] = temp_king
-          return false
-        end
-        @board[pos_xy[0]][pos_xy[1]] = temp_piece
-        @board[temp_king.x][temp_king.y] = temp_king
-        p true
+    king = get_king(player_color)
+    if is_check?(player_color,[king.x,king.y])
+      if can_king_move?(player_color) || can_kill_piece?(player_color)
+        p 'can kill'
+        return false
       end
       return true
     end
-    false
+    
   end
 
-
   def play_a_piece(player_color)
-    if is_checkmate?(player_color)
-      puts 'Check!'
-    end
+    puts 'Check!' if is_checkmate?(player_color)
     answer = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin')
     show_possible_moves(answer[0], answer[1])
     play_piece(answer[0], answer[1], player_color)
@@ -176,8 +194,6 @@ class Game
       end
     end
   end
-
-
 end
 
 game = Game.new
