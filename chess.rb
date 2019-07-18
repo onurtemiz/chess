@@ -133,10 +133,7 @@ class Game
     if @board[x][y].type == 'king'
       color_pos_moves(king_in_check_moves(@board[x][y]))
     elsif check?(@board[x][y].color)
-      
-      if
         color_pos_moves(piece_in_check_moves(@board[x][y]))
-      end
     else
       color_pos_moves(normal_possible_moves(x,y))
     end
@@ -163,11 +160,51 @@ class Game
     false
   end
 
+  def all_empty?(rook,king)
+    all_empty = true
+    fake_y = rook.y
+    if rook.y > king.y
+      until fake_y == king.y+1
+        fake_y -= 1
+        unless @board[rook.x][fake_y].type.nil?
+          all_empty = false
+        end
+      end
+    elsif rook.y < king.y
+      until fake_y == king.y-1
+        fake_y += 1
+        unless @board[rook.x][fake_y].type.nil?
+          all_empty = false
+        end
+      end
+    end
+    all_empty
+  end
+
+  def castling?(rook,king)
+    if !(king.moved) && !(rook.moved) && !(check?(king.color)) && !(check?(king.color,[rook.x,rook.y])) && (rook.x == king.x) && all_empty?(rook,king)
+      return true
+    else
+      false
+    end
+  end
+  def castling(rook,king)
+    if king.y > rook.y
+      move_piece(king.x,king.y,king.x,king.y-2)
+      move_piece(rook.x,rook.y,rook.x,king.y+1)
+    elsif king.y < rook.y
+      move_piece(king.x,king.y,king.x,king.y+2)
+      move_piece(rook.x,rook.y,rook.x,king.y-1)
+    end
+  end
+
   def play_piece(x, y, player_color)
     target = get_user_answer(player_color, 'play', 'Hareket Ettirmek İstediğiniz Yer İçin', [x, y])
     close_possible_moves(x, y)
     if @board[x][y].type == 'pawn'
       play_pawn(x, y, target)
+    elsif @board[x][y].type == 'king' || @board[x][y].type == 'rook'
+      @board[x][y].moved = true
     else
       move_piece(x, y, target[0], target[1])
     end
@@ -198,8 +235,10 @@ class Game
   def play_a_piece(player_color)
     puts 'Check!' if check?(player_color)
     answer = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin')
-    show_possible_moves(answer[0], answer[1])
-    play_piece(answer[0], answer[1], player_color)
+    unless answer == 'castling'
+      show_possible_moves(answer[0], answer[1])
+      play_piece(answer[0], answer[1], player_color)
+    end
   end
 
   def get_user_answer(player_color, option, for_what, coordinats = nil)
@@ -207,8 +246,21 @@ class Game
     loop do
       location = ''
       puts "#{player_color.capitalize} Lütfen #{for_what} Koordinat Girin. Örnek: a8"
-      location = get_converted_answer(gets.chomp.downcase)
-      if location.length == 2 && numbers.include?(location[0]) && numbers.include?(location[1])
+      input = gets.chomp.downcase
+      if input.length == 14 && input[0..7] == 'castling'
+        king_location = get_converted_answer(input[9..11])
+        king = @board[king_location[0]][king_location[1]]
+        rook_location = get_converted_answer(input[12..14])
+        rook = @board[rook_location[0]][rook_location[1]]
+        if rook.type == 'rook' && king.type == 'king' && castling?(rook,king)
+          castling(rook,king)
+          return 'castling'
+        else
+          next
+        end
+      else
+        location = get_converted_answer(input)
+        if location.length == 2 && numbers.include?(location[0]) && numbers.include?(location[1])
         if option == 'pick'
           if is_valid?(location[0], location[1], player_color)
             if check?(player_color)
@@ -240,6 +292,7 @@ class Game
             next
           end
         end
+      end
       end
     end
   end

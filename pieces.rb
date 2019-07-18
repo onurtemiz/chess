@@ -31,6 +31,12 @@ end
 class Rook < Cell
   include VerHorMove
 
+  attr_accessor :moved
+  def initialize(x, y, type, icon, color)
+    super
+    @moved = false
+  end
+
   def pos_moves
     possible_moves = []
     possible_moves.push(*possible_up_down)
@@ -65,6 +71,11 @@ class Queen < Cell
 end
 
 class King < Cell
+  attr_accessor :moved
+  def initialize(x, y, type, icon, color)
+    super
+    @moved = false
+  end
   def pos_moves
     board = Board.class_variable_get(:@@board)
     numbers = (0..7).to_a
