@@ -8,7 +8,6 @@ class Board
     @@board = Array.new(8) { Array.new(8) }
     initialize_pieces('black')
     initialize_pieces('white')
-
     @@board.each_with_index do |r, row|
       r.each_with_index do |_c, col|
         @@board[row][col] = Cell.new(row, col) if @@board[row][col].nil?
@@ -35,9 +34,9 @@ class Board
     @@board[piece_row][5] = Bishop.new(piece_row, 5, 'bishop', b, color)
     @@board[piece_row][3] = Queen.new(piece_row, 3, 'queen', q, color)
     @@board[piece_row][4] = King.new(piece_row, 4, 'king', ki, color)
-    # @@board[pawn_row].each_with_index do |_pawn, index|
-    #   @@board[pawn_row][index] = Pawn.new(pawn_row, index, 'pawn', pi, color)
-    # end
+    @@board[pawn_row].each_with_index do |_pawn, index|
+      @@board[pawn_row][index] = Pawn.new(pawn_row, index, 'pawn', pi, color)
+    end
   end
 
   def display

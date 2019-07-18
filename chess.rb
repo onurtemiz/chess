@@ -75,7 +75,7 @@ class Game
       temp_king = player_king
       @board[pos_xy[0]][pos_xy[1]] = player_king
       @board[temp_king.x][temp_king.y] = Cell.new(temp_king.x, temp_king.y)
-      unless check?(player_color, pos_xy)
+      unless check?(player_king.color, pos_xy)
         @board[pos_xy[0]][pos_xy[1]] = temp_piece
         @board[temp_king.x][temp_king.y] = temp_king
         king_pos_moves.push(pos_xy)
@@ -130,10 +130,11 @@ class Game
   end
 
   def show_possible_moves(x, y)
-    if check?(@board[x][y].color)
-      if @board[x][y].type == 'king'
-        color_pos_moves(king_in_check_moves(@board[x][y]))
-      else
+    if @board[x][y].type == 'king'
+      color_pos_moves(king_in_check_moves(@board[x][y]))
+    elsif check?(@board[x][y].color)
+      
+      if
         color_pos_moves(piece_in_check_moves(@board[x][y]))
       end
     else
@@ -149,6 +150,10 @@ class Game
       play_pawn(x, y, target)
     else
       move_piece(x, y, target[0], target[1])
+    end
+    enemy_color = player_color == 'white' ? 'black' : 'white'
+    if checkmate?(enemy_color)
+      @game_over = true
     end
   end
 
@@ -171,7 +176,7 @@ class Game
   
 
   def play_a_piece(player_color)
-    puts 'Check!' if checkmate?(player_color)
+    puts 'Check!' if check?(player_color)
     answer = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin')
     show_possible_moves(answer[0], answer[1])
     play_piece(answer[0], answer[1], player_color)
@@ -180,28 +185,36 @@ class Game
   def get_user_answer(player_color, option, for_what, coordinats = nil)
     numbers = (0..7).to_a
     loop do
-      if checkmate?(player_color)
-        @game_over = true
-        break
-      end
       location = ''
       puts "#{player_color.capitalize} Lütfen #{for_what} Koordinat Girin. Örnek: a8"
       location = get_converted_answer(gets.chomp.downcase)
       if location.length == 2 && numbers.include?(location[0]) && numbers.include?(location[1])
         if option == 'pick'
           if is_valid?(location[0], location[1], player_color)
+            if check?(player_color)
+              if @board[location[0]][location[1]].type == 'king'
+                return location unless king_in_check_moves(@board[location[0]][location[1]]).length.zero?
+              elsif !(piece_in_check_moves(@board[location[0]][location[1]]).length.zero?)
+                return location
+              else
+                next
+              end
+            else
               return location
+            end
           else
             next
           end
         elsif option == 'play'
-          if check?(player_color)
-            if @board[coordinats[0]][coordinats[1]].type == 'king'
-              return location if king_in_check_moves(@board[coordinats[0]][coordinats[1]]).include?([location[0], location[1]])
-            elsif piece_in_check_moves(@board[coordinats[0]][coordinats[1]]).include?([location[0], location[1]])
+          if @board[coordinats[0]][coordinats[1]].type == 'king'
+            return location if king_in_check_moves(@board[coordinats[0]][coordinats[1]]).include?([location[0], location[1]])
+          elsif check?(player_color)
+            if piece_in_check_moves(@board[coordinats[0]][coordinats[1]]).include?([location[0], location[1]])
               return location
+            else
+              next
             end
-          elsif @board[coordinats[0]][coordinats[1]].pos_moves.include?([location[0], location[1]])
+          elsif @board[coordinats[0]][coordinats[1]].pos_moves.include?([location[0], location[1]]) && @board[coordinats[0]][coordinats[1]].type != 'king'
             return location
           else
             next
@@ -212,7 +225,7 @@ class Game
   end
 end
 
-def play_again?
+def play_again?(answer='')
   until answer == 'y' || answer == 'n'
     answer = gets.chomp.downcase
   end
@@ -223,8 +236,6 @@ def play_again?
     puts 'Okay.'
   end
 end
-
-game = Game.new
 
 def play_game(game)
 loop do
@@ -244,3 +255,5 @@ puts 'Want to play again? (y/n)'
 play_again?
 end
  
+game = Game.new
+play_game(game)

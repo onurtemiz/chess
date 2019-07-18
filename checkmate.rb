@@ -172,6 +172,16 @@ end
 
 def checkmate?(player_color)
   if check?(player_color)
-    can_king_move?(player_color) || can_kill_piece?(player_color) || can_move_between?(player_color) ? false : true
+    if can_king_move?(player_color)
+      puts 'can move'
+      return false
+    elsif can_kill_piece?(player_color)
+      puts 'can kill'
+      return false
+    elsif can_move_between?(player_color)
+      puts 'can between'
+      return false
+    end
+    true
   end
 end
