@@ -11,6 +11,7 @@ class Cell
     @type = type
     @icon = icon
     @color = color
+    @board = Board.class_variable_get(:@@board)
   end
 
   def to_s
@@ -77,13 +78,12 @@ class King < Cell
     @moved = false
   end
   def pos_moves
-    board = Board.class_variable_get(:@@board)
     numbers = (0..7).to_a
     possible_moves = []
     possible_x_y = [[1, 0], [1, -1], [1, 1], [0, 1], [0, -1], [-1, 0], [-1, 1], [-1, -1]]
     possible_x_y.each do |move|
       if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1])
-        possible_moves.push([@x + move[0], @y + move[1]]) if board[@x + move[0]][@y + move[1]].color != @color
+        possible_moves.push([@x + move[0], @y + move[1]]) if @board[@x + move[0]][@y + move[1]].color != @color
       end
     end
     possible_moves
@@ -92,7 +92,6 @@ end
 
 class Knight < Cell
   def pos_moves
-    board = Board.class_variable_get(:@@board)
     numbers = (0..7).to_a
     possible_moves = []
     possible_x_y = [[2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]]
@@ -112,20 +111,22 @@ class Pawn < Cell
     @first_move = false
   end
 
-  def pos_moves
-    board = Board.class_variable_get(:@@board)
+  def by_color_moves(player_color,plus = 1,ptwo = 2)
     possible_moves = []
-    if @color == 'black'
-      possible_moves.push([@x + 1, @y]) if board[@x+1][@y].type.nil?
-      possible_moves.push([@x + 2, @y]) if !@first_move && board[@x+2][@y].type.nil? 
-      possible_moves.push([@x + 1,@y - 1]) if @y != 0 && !(board[@x+1][@y-1].type.nil?)
-      possible_moves.push([@x + 1,@y + 1]) if @y != 7 && !(board[@x+1][@y+1].type.nil?)
-    else
-      possible_moves.push([@x - 1, @y]) if board[@x-1][@y].type.nil?
-      possible_moves.push([@x - 2, @y]) if !@first_move && board[x-2][@y].type.nil?
-      possible_moves.push([@x - 1,@y - 1]) if @y != 0 && !(board[@x-1][@y-1].type.nil?) 
-      possible_moves.push([@x - 1,@y + 1]) if @y != 7 && !(board[@x-1][@y+1].type.nil?) 
+    if player_color == 'white'
+      plus = -1
+      ptwo = -2
     end
+    possible_moves.push([@x + plus, @y]) if @board[@x+plus][@y].type.nil? && @board[@x+plus][@y].color != @color  # Normal Movement
+    possible_moves.push([@x + ptwo, @y]) if !@first_move && @board[@x+ptwo][@y].type.nil? && @board[@x+ptwo][@y].color != @color  # First +2 Movement
+    possible_moves.push([@x + plus,@y - 1]) if @y != 0 && !(@board[@x+plus][@y - 1].type.nil?) && @board[@x+plus][@y - 1].color != @color # Left Eat
+    possible_moves.push([@x + plus,@y + 1]) if @y != 7 && !(@board[@x+plus][@y + 1].type.nil?) && @board[@x+plus][@y + 1].color != @color # Right Eat
+    possible_moves
+  end
+
+  def pos_moves
+    possible_moves = []
+    possible_moves.push(*by_color_moves(@color))
     possible_moves
   end
 end

@@ -42,22 +42,20 @@ class Game
   def play_pawn(x, y, target)
     @board[x][y].first_move = true unless @board[x][y].first_move
     if target[0] == 7 || target[0].zero?
-      if @board[x][y].color == 'white'
-        @board[target[0]][target[1]] = Queen.new(target[0], target[1], 'queen', '♛', @board[x][y].color)
-      else
-        @board[target[0]][target[1]] = Queen.new(target[0], target[1], 'queen', '♕', @board[x][y].color)
-      end
+      @board[x][y].color == 'white' ? icon = '♛' : icon = '♕'
+      @board[target[0]][target[1]] = Queen.new(target[0], target[1], 'queen', icon, @board[x][y].color)
       @board[x][y] = Cell.new(x, y)
     else
       move_piece(x, y, target[0], target[1])
     end
   end
 
-  def close_possible_moves(x, y)
-    @board[x][y].pos_moves.each do |pos_xy|
-      @board[pos_xy[0]][pos_xy[1]].icon = @board[pos_xy[0]][pos_xy[1]].icon.no_colors
+  def close_possible_moves()
+    @board.each_with_index do |row,r|
+      row.each_with_index do |col,c|
+        @board[r][c].icon = @board[r][c].icon.no_colors
+      end
     end
-    @board_class.display
   end
 
   def normal_possible_moves(x,y)
@@ -72,16 +70,15 @@ class Game
     king_pos_moves = []
     player_king.pos_moves.each do |pos_xy|
       temp_piece = @board[pos_xy[0]][pos_xy[1]]
-      temp_king = player_king
       @board[pos_xy[0]][pos_xy[1]] = player_king
-      @board[temp_king.x][temp_king.y] = Cell.new(temp_king.x, temp_king.y)
+      @board[player_king.x][player_king.y] = Cell.new(player_king.x, player_king.y)
       unless check?(player_king.color, pos_xy)
         @board[pos_xy[0]][pos_xy[1]] = temp_piece
-        @board[temp_king.x][temp_king.y] = temp_king
+        @board[player_king.x][player_king.y] = player_king
         king_pos_moves.push(pos_xy)
       end
       @board[pos_xy[0]][pos_xy[1]] = temp_piece
-      @board[temp_king.x][temp_king.y] = temp_king
+      @board[player_king.x][player_king.y] = player_king
     end
     king_pos_moves
   end
@@ -107,9 +104,7 @@ class Game
       enemy_pos = locations_between_king(enemy_piece,player_king)
       enemy_pos.each do |enemy_pos_xy|
           piece.pos_moves.each do |player_pos_xy|
-            if enemy_pos_xy == player_pos_xy
-              pos_moves.push(enemy_pos_xy)
-            end
+            pos_moves.push(enemy_pos_xy) if enemy_pos_xy == player_pos_xy
           end
       end
     end
@@ -137,7 +132,6 @@ class Game
     else
       color_pos_moves(normal_possible_moves(x,y))
     end
-    @board_class.display
   end
 
   def stalemate?(player_color)
@@ -182,11 +176,7 @@ class Game
   end
 
   def castling?(rook,king)
-    if !(king.moved) && !(rook.moved) && !(check?(king.color)) && !(check?(king.color,[rook.x,rook.y])) && (rook.x == king.x) && all_empty?(rook,king)
-      return true
-    else
-      false
-    end
+    !(king.moved) && !(rook.moved) && !(check?(king.color)) && !(check?(king.color,[rook.x,rook.y])) && (rook.x == king.x) && all_empty?(rook,king) ? true : false
   end
   def castling(rook,king)
     if king.y > rook.y
@@ -198,20 +188,14 @@ class Game
     end
   end
 
-  def play_piece(x, y, player_color)
-    target = get_user_answer(player_color, 'play', 'Hareket Ettirmek İstediğiniz Yer İçin', [x, y])
-    close_possible_moves(x, y)
-    if @board[x][y].type == 'pawn'
-      play_pawn(x, y, target)
-    elsif @board[x][y].type == 'king' || @board[x][y].type == 'rook'
-      @board[x][y].moved = true
-    else
-      move_piece(x, y, target[0], target[1])
-    end
+  def play_piece(x, y,t_x,t_y, player_color)
+    @board[x][y].type == 'pawn' ? play_pawn(x, y, [t_x,t_y]) : move_piece(x, y, t_x, t_y)
+    @board[x][y].moved = true if @board[x][y].type == 'king' || @board[x][y].type == 'rook'
+  end
+
+  def game_over?(player_color)
     enemy_color = player_color == 'white' ? 'black' : 'white'
-    if checkmate?(enemy_color) || stalemate?(enemy_color)
-      @game_over = true
-    end
+    @game_over = true if checkmate?(enemy_color) || stalemate?(enemy_color)
   end
 
   def get_converted_answer(answer)
@@ -234,10 +218,15 @@ class Game
 
   def play_a_piece(player_color)
     puts 'Check!' if check?(player_color)
-    answer = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin')
-    unless answer == 'castling'
-      show_possible_moves(answer[0], answer[1])
-      play_piece(answer[0], answer[1], player_color)
+    pick = get_user_answer(player_color, 'pick', 'Oynayacağınız Taşı Seçmek İçin')
+    unless pick == 'castling'
+      show_possible_moves(pick[0],pick[1])
+      @board_class.display
+      target = get_user_answer(player_color, 'play', 'Hareket Ettirmek İstediğiniz Yer İçin', [pick[0],pick[1]])
+      play_piece(pick[0],pick[1],target[0],target[1],player_color)
+      close_possible_moves
+      @board_class.display
+      game_over?(player_color)
     end
   end
 
@@ -314,17 +303,14 @@ def play_game(game)
 loop do
   game.play_a_piece('white')
   game.board_class.display
-  if game.game_over
-    break
-  end
+  break if game.game_over
+
   game.play_a_piece('black')
   game.board_class.display
-  if game.game_over
-    break
-  end
+  break if game.game_over
 end
 puts 'Game Over!'
-puts 'Want to play again? (y/n)'
+puts 'Do you want to play again? (y/n)'
 play_again?
 end
  
