@@ -8,6 +8,7 @@ class Board
     @@board = Array.new(8) { Array.new(8) }
     initialize_pieces('black')
     initialize_pieces('white')
+
     @@board.each_with_index do |r, row|
       r.each_with_index do |_c, col|
         @@board[row][col] = Cell.new(row, col) if @@board[row][col].nil?

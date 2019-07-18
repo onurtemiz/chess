@@ -143,6 +143,26 @@ class Game
     @board_class.display
   end
 
+  def stalemate?(player_color)
+    unless check?(player_color)
+      stalemate = true
+      player_pieces = get_player_pieces(player_color)
+      player_pieces.each do |piece|
+        if piece.type == 'king'
+          king_in_check_moves(piece).each do |pos_xy|
+            stalemate = false unless pos_xy.length.zero?
+          end
+        else
+          piece.pos_moves.each do |pos_xy|
+            stalemate = false unless pos_xy.length.zero?
+          end
+        end
+      end
+      return stalemate
+    end
+    false
+  end
+
   def play_piece(x, y, player_color)
     target = get_user_answer(player_color, 'play', 'Hareket Ettirmek İstediğiniz Yer İçin', [x, y])
     close_possible_moves(x, y)
@@ -152,7 +172,7 @@ class Game
       move_piece(x, y, target[0], target[1])
     end
     enemy_color = player_color == 'white' ? 'black' : 'white'
-    if checkmate?(enemy_color)
+    if checkmate?(enemy_color) || stalemate?(enemy_color)
       @game_over = true
     end
   end
