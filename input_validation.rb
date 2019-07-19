@@ -9,6 +9,13 @@ module InputValidation
       return true if king_in_check_moves(@board[input[0]][input[1]]).include?([target[0], target[1]])
     elsif check?(player_color)
       return true if piece_in_check_moves(@board[input[0]][input[1]]).include?([target[0], target[1]])
+    elsif @board[input[0]][input[1]].type == 'pawn' && (@board[input[0]][input[1]].can_passant_left || @board[input[0]][input[1]].can_passant_right)
+      p 'can choose'
+      if @board[input[0]][input[1]].color == 'black' && @board[target[0]-1][target[1]].type == 'pawn' && @board[target[0]-1][target[1]].can_killed
+        return true
+      elsif @board[input[0]][input[1]].color == 'white' && @board[target[0]+1][target[1]].type == 'pawn' && @board[target[0]+1][target[1]].can_killed
+        return true
+      end
     elsif @board[input[0]][input[1]].pos_moves.include?([target[0], target[1]]) && @board[target[0]][target[1]].type != 'king'
       return true
     end

@@ -105,10 +105,13 @@ class Knight < Cell
 end
 
 class Pawn < Cell
-  attr_accessor :first_move
+  attr_accessor :first_move , :can_passant_left, :can_passant_right , :can_killed
   def initialize(x, y, type, icon, color)
     super
     @first_move = false
+    @can_passant_left = false
+    @can_passant_right = false
+    @can_killed = false
   end
 
   def by_color_moves(player_color,plus = 1,ptwo = 2)
@@ -119,8 +122,8 @@ class Pawn < Cell
     end
     possible_moves.push([@x + plus, @y]) if @board[@x+plus][@y].type.nil? && @board[@x+plus][@y].color != @color  # Normal Movement
     possible_moves.push([@x + ptwo, @y]) if !@first_move && @board[@x+ptwo][@y].type.nil? && @board[@x+ptwo][@y].color != @color  # First +2 Movement
-    possible_moves.push([@x + plus,@y - 1]) if @y != 0 && !(@board[@x+plus][@y - 1].type.nil?) && @board[@x+plus][@y - 1].color != @color # Left Eat
-    possible_moves.push([@x + plus,@y + 1]) if @y != 7 && !(@board[@x+plus][@y + 1].type.nil?) && @board[@x+plus][@y + 1].color != @color # Right Eat
+    possible_moves.push([@x + plus,@y - 1]) if @y != 0 && (!(@board[@x+plus][@y - 1].type.nil?) && @board[@x+plus][@y - 1].color != @color) || @can_passant_left # Left Eat
+    possible_moves.push([@x + plus,@y + 1]) if @y != 7 && (!(@board[@x+plus][@y + 1].type.nil?) && @board[@x+plus][@y + 1].color != @color) || @can_passant_right # Right Eat
     possible_moves
   end
 

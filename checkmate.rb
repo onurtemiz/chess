@@ -66,7 +66,6 @@ def get_king_pos_xy(player_color)
 end
 
 def check?(player_color, king_location = get_king_pos_xy(player_color))
-  p king_location
   enemy_color = player_color == 'white' ? 'black' : 'white'
   enemy_pieces = get_player_pieces(enemy_color)
   enemy_pieces.each do |piece|
