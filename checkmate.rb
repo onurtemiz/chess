@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+module CheckMate
 def get_king(player_color)
   player_pieces = get_player_pieces(player_color)
   player_pieces.each do |piece|
@@ -7,12 +7,66 @@ def get_king(player_color)
   end
 end
 
+def piece_eats_enemy(piece)
+  pos_moves = []
+  target_pieces = get_enemy_checking_pieces(piece.color)
+    piece.pos_moves.each do |pos_xy|
+      target_pieces.each do |target_piece|
+        if pos_xy == [target_piece.x,target_piece.y]
+          pos_moves.push(pos_xy)
+        end
+      end
+    end
+  pos_moves
+end
+
+def piece_between_enemy(piece)
+  pos_moves = []
+  enemy_pieces = get_enemy_checking_pieces(piece.color)
+  player_king = get_king(piece.color)
+  enemy_pieces.each do |enemy_piece|
+    enemy_pos = locations_between_king(enemy_piece,player_king)
+    enemy_pos.each do |enemy_pos_xy|
+        piece.pos_moves.each do |player_pos_xy|
+          pos_moves.push(enemy_pos_xy) if enemy_pos_xy == player_pos_xy
+        end
+    end
+  end
+  pos_moves
+end
+
+def piece_in_check_moves(piece)
+  pos_moves = []
+  pos_moves.push(*piece_eats_enemy(piece))
+  pos_moves.push(*piece_between_enemy(piece))
+  pos_moves
+end
+
+def king_in_check_moves(player_king)
+  king_pos_moves = []
+  player_king.pos_moves.each do |pos_xy|
+    temp_piece = @board[pos_xy[0]][pos_xy[1]]
+    @board[pos_xy[0]][pos_xy[1]] = player_king
+    @board[player_king.x][player_king.y] = Cell.new(player_king.x, player_king.y)
+    unless check?(player_king.color, pos_xy)
+      @board[pos_xy[0]][pos_xy[1]] = temp_piece
+      @board[player_king.x][player_king.y] = player_king
+      king_pos_moves.push(pos_xy)
+    end
+    @board[pos_xy[0]][pos_xy[1]] = temp_piece
+    @board[player_king.x][player_king.y] = player_king
+  end
+  king_pos_moves
+end
+
+
 def get_king_pos_xy(player_color)
   king = get_king(player_color)
   [king.x, king.y]
 end
 
 def check?(player_color, king_location = get_king_pos_xy(player_color))
+  p king_location
   enemy_color = player_color == 'white' ? 'black' : 'white'
   enemy_pieces = get_player_pieces(enemy_color)
   enemy_pieces.each do |piece|
@@ -181,4 +235,25 @@ def checkmate?(player_color)
 
     true
   end
+end
+
+def stalemate?(player_color)
+  unless check?(player_color)
+    stalemate = true
+    player_pieces = get_player_pieces(player_color)
+    player_pieces.each do |piece|
+      if piece.type == 'king'
+        king_in_check_moves(piece).each do |pos_xy|
+          stalemate = false unless pos_xy.length.zero?
+        end
+      else
+        piece.pos_moves.each do |pos_xy|
+          stalemate = false unless pos_xy.length.zero?
+        end
+      end
+    end
+    return stalemate
+  end
+  false
+end
 end
