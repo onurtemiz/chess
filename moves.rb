@@ -9,6 +9,7 @@ module Moves
   end
 
   def passant_check(x,y)
+    if @board[x][y].type == 'pawn'
     if (y-1 >= 0) && (@board[x][y-1].type == 'pawn') && (@board[x][y].color != @board[x][y-1]) && @board[x][y-1].can_killed
       p 'left'
       @board[x][y].can_passant_left = true
@@ -18,6 +19,7 @@ module Moves
       p 'right'
       @board[x][y].can_passant_right = true
     end
+  end
   end
 
   def play_pawn(x, y, target)

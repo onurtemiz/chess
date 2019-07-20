@@ -31,9 +31,9 @@ class Board
     @@board[piece_row][7] = Rook.new(piece_row, 7, 'rook', r, color)
     @@board[piece_row][1] = Knight.new(piece_row, 1, 'knight', k, color)
     @@board[piece_row][6] = Knight.new(piece_row, 6, 'knight', k, color)
-    # @@board[piece_row][2] = Bishop.new(piece_row, 2, 'bishop', b, color)
-    # @@board[piece_row][5] = Bishop.new(piece_row, 5, 'bishop', b, color)
-    # @@board[piece_row][3] = Queen.new(piece_row, 3, 'queen', q, color)
+    @@board[piece_row][2] = Bishop.new(piece_row, 2, 'bishop', b, color)
+    @@board[piece_row][5] = Bishop.new(piece_row, 5, 'bishop', b, color)
+    @@board[piece_row][3] = Queen.new(piece_row, 3, 'queen', q, color)
     @@board[piece_row][4] = King.new(piece_row, 4, 'king', ki, color)
     @@board[pawn_row].each_with_index do |_pawn, index|
       @@board[pawn_row][index] = Pawn.new(pawn_row, index, 'pawn', pi, color)

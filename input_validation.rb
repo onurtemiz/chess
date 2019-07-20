@@ -6,20 +6,42 @@ module InputValidation
   def valid_target?(player_color,input,target)
     target = get_converted_answer(target)
     if @board[input[0]][input[1]].type == 'king'
-      return true if king_in_check_moves(@board[input[0]][input[1]]).include?([target[0], target[1]])
+      if  king_in_check_moves(@board[input[0]][input[1]]).include?([target[0], target[1]])
+        return true
+      else
+        return false
+      end
     elsif check?(player_color)
       return true if piece_in_check_moves(@board[input[0]][input[1]]).include?([target[0], target[1]])
-    elsif @board[input[0]][input[1]].type == 'pawn' && (@board[input[0]][input[1]].can_passant_left || @board[input[0]][input[1]].can_passant_right)
-      p 'can choose'
+    elsif @board[input[0]][input[1]].pos_moves.include?([target[0], target[1]]) && @board[target[0]][target[1]].type != 'king'
+      return true
+    elsif @board[input[0]][input[1]].type == 'pawn' && (@board[input[0]][input[1]].can_passant_left || @board[input[0]][input[1]].can_passant_right) && can_become_check?(player_color,input,target)
       if @board[input[0]][input[1]].color == 'black' && @board[target[0]-1][target[1]].type == 'pawn' && @board[target[0]-1][target[1]].can_killed
         return true
       elsif @board[input[0]][input[1]].color == 'white' && @board[target[0]+1][target[1]].type == 'pawn' && @board[target[0]+1][target[1]].can_killed
         return true
       end
-    elsif @board[input[0]][input[1]].pos_moves.include?([target[0], target[1]]) && @board[target[0]][target[1]].type != 'king'
-      return true
     end
     false
+  end
+
+  def can_not_become_check?(player_color,input)
+
+    piece_pos_moves = []
+    piece = @board[input[0]][input[1]]
+    piece.pos_moves.each do |pos_xy|
+    temp_piece = @board[pos_xy[0]][pos_xy[1]]
+    @board[pos_xy[0]][pos_xy[1]] = piece
+    @board[piece.x][piece.y] = Cell.new(piece.x, piece.y)
+    unless check?(piece.color)
+      @board[pos_xy[0]][pos_xy[1]] = temp_piece
+      @board[piece.x][piece.y] = piece
+      piece_pos_moves.push(pos_xy)
+    end
+    @board[pos_xy[0]][pos_xy[1]] = temp_piece
+    @board[piece.x][piece.y] = piece
+    end
+    piece_pos_moves.length.positive? ? true : false
   end
 
   def get_target_piece(player_color,input)
@@ -45,16 +67,21 @@ module InputValidation
 
   def is_valid?(input, player_color)
     input = get_converted_answer(input)
-    if @board[input[0]][input[1]].color == player_color && @board[input[0]][input[1]].pos_moves.length.positive?
+    if @board[input[0]][input[1]].type == 'king' 
+      if king_in_check_moves(@board[input[0]][input[1]]).length.positive?
+        return true
+      else
+        return false
+      end
+    elsif @board[input[0]][input[1]].color == player_color && can_not_become_check?(player_color,input)
       if check?(player_color)
-        if @board[input[0]][input[1]].type == 'king'
-          return true unless king_in_check_moves(@board[input[0]][input[1]]).length.zero?
-        elsif !(piece_in_check_moves(@board[input[0]][input[1]]).length.zero?)
+        if !(piece_in_check_moves(@board[input[0]][input[1]]).length.zero?)
           return true
         end
       else
         return true
       end
+
     end
     false
   end

@@ -7,6 +7,7 @@ require './castling'
 require './input_validation'
 require './show_moves'
 require './moves'
+require './ai'
 
 class String
   def bg_red
@@ -24,6 +25,7 @@ class Game
   include InputValidation
   include ShowMoves
   include Moves
+  include AI
   attr_reader :board_class , :game_over
   def initialize
     @board_class = Board.new
@@ -32,6 +34,7 @@ class Game
     @game_over = false
     @repetition = 0
   end
+
 
   
   
@@ -81,22 +84,33 @@ def play_again?(answer='')
   until answer == 'y' || answer == 'n'
     answer = gets.chomp.downcase
   end
-  if answer == 'y'
-    game = Game.new
-    play_game(game)
-  else
-    puts 'Okay.'
-  end
+  play_game() if  answer == 'y'
 end
 
-def play_game(game)
-loop do
-  game.decide_user_input('white')
-  game.board_class.display
-  break if game.game_over
+def get_player_or_ai(answer='')
+  until answer == 'ai' || answer == 'player'
+    answer = gets.chomp.downcase
+  end
+  answer
+end
 
-  game.decide_user_input('black')
+def player_plays(player,player_color,game)
+  player == 'player' ? game.decide_user_input(player_color) : game.ai_play_piece(player_color)
   game.board_class.display
+end
+
+def play_game()
+  game = Game.new
+  puts 'Player 1: AI Or Player?'
+  player1 = get_player_or_ai()
+  puts 'Player 2: AI Or Player?'
+  player2 = get_player_or_ai()
+
+
+loop do
+  player_plays(player1,'white',game)
+  break if game.game_over
+  player_plays(player2,'black',game)
   break if game.game_over
 end
 puts 'Game Over!'
@@ -104,5 +118,4 @@ puts 'Do you want to play again? (y/n)'
 play_again?
 end
  
-game = Game.new
-play_game(game)
+play_game()
