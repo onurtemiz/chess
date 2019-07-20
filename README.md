@@ -20,3 +20,7 @@ How To Play:
 * 50 Move Rule
 * Ultra Basic AI
 * Shows Moves With Red Background
+
+# TODO
+* Save - Load Function
+
