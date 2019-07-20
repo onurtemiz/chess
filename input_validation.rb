@@ -60,15 +60,24 @@ module InputValidation
   end
 
   def decide_user_input(player_color)
+    old_pawns = get_pawns_locations(@board.map(&:clone))
+    old_pieces = get_pieces(@board.map(&:clone))
     player_color == 'white' ? color = 'Beyaz' : color = 'Siyah'
     loop do
       puts "#{color} Lütfen Oynamak İstediğiniz Taşı Seçin (Örnek: a7) Ya Da Castling Yapın. (Örnek: castlıng a4 a7)"
       input = get_user_input
       if castling_input?(input)
         castling(input)
+        new_board = pieces_and_pawns
+        repetition?(old_board,new_board)
         break
       elsif pick_input?(input,player_color)
         normal_move(input,player_color)
+        new_pawns = get_pawns_locations(@board.map(&:clone))
+        new_pieces = get_pieces(@board.map(&:clone))
+        repetition?(old_pieces,old_pawns,new_pieces,new_pawns)
+        p @repetition
+        game_over?(player_color)
         break
       end
     end

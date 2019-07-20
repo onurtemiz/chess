@@ -96,7 +96,7 @@ class Knight < Cell
     possible_moves = []
     possible_x_y = [[2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]]
     possible_x_y.each do |move|
-      if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1])
+      if numbers.include?(@x + move[0]) && numbers.include?(@y + move[1]) && @board[@x+move[0]][@y+move[1]].color != @color
         possible_moves.push([@x + move[0], @y + move[1]])
       end
     end

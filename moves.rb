@@ -69,6 +69,6 @@ module Moves
     play_piece(input[0],input[1],target[0],target[1],player_color)
     close_possible_moves
     @board_class.display
-    game_over?(player_color)
+    
   end
 end
